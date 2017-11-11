@@ -1,6 +1,9 @@
 debug = true;
 
 
+granted = false;
+
+
 function getField(name) {
     var el = document.getElementsByName(name)[0];
     return el;
@@ -13,6 +16,10 @@ function getErrField(id) {
 function onSubmit() {
 
     document.getElementById("please_wait").innerHTML = "Please, wait...";
+
+    if (granted) {
+        return true;
+    }
 
     var regexes = {
         "agree":"true",
@@ -58,33 +65,38 @@ function onSubmit() {
     
     xhttp.onreadystatechange = function() {
         
-        document.getElementById("please_wait").innerHTML = "";
-        responseCame = true;
-        
-        alert(this.status);
-        
-        if (this.status === 200 || this.status === 0) {
+        alert("rd state:" + this.readyState);
+        if (this.readyState === 4) {
+            alert("the status is "+this.status);
+            document.getElementById("please_wait").innerHTML = "";
             
-        } else {
-            isvalid = false;
-            var resp = JSON.parse(xhttp.responseText);
-            
-            alert("Err field count: "+resp.length);
-            for(var key in resp) {
-                alert("Err field: "+key);
-                getErrField(key).innerHTML = resp[key];
+            if (this.status === 200) {
+                granted = true;
+                document.forms[0].submit();
+            } else {
+                alert("parsing "+ xhttp.responseText);
+                isvalid = false;
+                var resp = JSON.parse(xhttp.responseText);
+
+                alert("Err field count: "+resp.length);
+                for(var key in resp) {
+                    alert("Err field: "+key);
+                    getErrField(key).innerHTML = resp[key];
+                }
             }
+
+            responseCame = true;
         }
     };
+
     xhttp.open("POST", "register_validate", true);
     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    
-    xhttp.send(["email", "country", "login"]
+
+    (xhttp.send(["email", "country", "login"]
             .map(name => name + "=" + getField(name).value)
-            .join("&"));
+            .join("&")));
     
-    //checking
-    while(!responseCame);
+    
     
     if (!isvalid) {
         getField("password").value = "";
@@ -92,6 +104,6 @@ function onSubmit() {
     }
     
     if (debug) alert("About to return "+isvalid);
-    return isvalid;
+    return false;
 }
 

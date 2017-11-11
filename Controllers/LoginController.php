@@ -67,11 +67,11 @@ class LoginController extends Controller{
         $val_data["email"] = $_POST["email"];
         $res = $this->register_server_side_validation($val_data);
         
-        if ($res === FALSE) {
+        if (count($res) > 0) {
             http_response_code(500);
         }
         
-        echo json_encode($errors);
+        echo json_encode($res);
     }
 
     public function register_post() {
@@ -110,7 +110,7 @@ class LoginController extends Controller{
         $val_data["login"] = $_POST["login"];
         $val_data["email"] = $_POST["email"];
         
-        if ($this->register_server_side_validation($val_data) === FALSE){
+        if (count($this->register_server_side_validation($val_data)) > 0){
             $isvalid = FALSE;
         }
         
@@ -190,10 +190,6 @@ class LoginController extends Controller{
             $errors["country"] = "Doesn't exist";
         }
         
-        if (count($errors) > 0) {
-            return TRUE;
-        } else {
-            return FALSE;
-        }
+        return $errors;
     }
 }
