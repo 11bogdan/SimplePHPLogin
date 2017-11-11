@@ -1,0 +1,2 @@
+RewriteEngine on
+RewriteRule ^(.*)$ Router.php?path=$1 [NC,L,QSA]
