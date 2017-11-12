@@ -18,6 +18,5 @@ class User {
     public $country_id;
     public $real_name;
     public $birth_date;
-    public $reg_time;
     
 }

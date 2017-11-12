@@ -6,22 +6,12 @@
  * and open the template in the editor.
  */
 
-const DEBUG = TRUE;
+const DEBUG = FALSE;
 const ROOT_DIR = "SimplePHPLogin";
 const ROOT_URL = __DIR__;
-error_reporting(-1);
+const SITE_URL = "http://localhost/SimplePHPLogin/";
+error_reporting(0);
 
-function ensure_auth($current_url) {
-    if(session_status() == PHP_SESSION_NONE) {
-
-        //do redirect to login controller
-        if (DEBUG) {
-            echo "Routing to login...";
-        }
-
-        header("Location: ".ROOT_URL."/login/signup?return=$current_url");
-    }
-}
 
 function test_input($data) {
     $data = trim($data);

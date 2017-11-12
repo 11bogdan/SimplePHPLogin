@@ -23,38 +23,72 @@ class LoginController extends Controller{
     }
     
     public function signup($data) {
+        $view_data["incorrect"] = $_GET["incorrect"] == TRUE? "Login or password is incorrect": "";
         $view_data["return"] = $data["return"];
         $this->view($view_data);
     }
     
-    public function signup_validate($data) {
-        //ensure uniq email or login
-        
-        $val_data["login_or_email"] = $_POST["login_or_email"];
-        $val_data["password"] = $_POST["password"];
-        
-        $res = $this->signup_server_side_validation($val_data);
-        
-        if (count($res) > 0) {
-            http_response_code(500);
+    public function signout() {
+        if (DEBUG) {
+            echo "sid: ".session_id();
         }
-        echo json_encode($res);
+        $this->db_manager->sign_out();
+        $this->view();
     }
     
     public function signup_post() {
+
         if ($_SERVER["REQUEST_METHOD"] == "POST") {
-            $succ = FALSE;
             
+            $val_data["login_or_email"] = $_POST["login_or_email"];
+            $val_data["password"] = $_POST["password"];
+
+            $user = $this->signup_server_side_validation($val_data);
+            if ($user) {
+                $res = $this->db_manager->sign_in($user);
+            }
             
-            
-            if ($succ) {
-                header("Location: $return_url");
+            if ($res !== TRUE) {
+                if (DEBUG) {
+                    echo "incorrect";
+                }
+                if (!DEBUG) header("Location: signup?incorrect=true");
+            } else {
+                if (DEBUG) {
+                    echo "signup sid id:".session_id().". again: ". session_id();
+                    echo "Going to redirect...";
+                }
+                //header('HTTP/1.0 302 Found');
+                if (!DEBUG) header("Location: ".SITE_URL."index/index");
             }
         }
     }
     
+    private function signup_server_side_validation($data) {
+        $login_or_email = $data["login_or_email"];
+        $is_email = filter_var($login_or_email, FILTER_VALIDATE_EMAIL) != FALSE;
+        
+        if (DEBUG) {
+            echo "isemail: $is_email";
+        }
+        if ($is_email) {
+            $res = $this->db_manager->get_user_by_email_p(
+                    $login_or_email, $data["password"]);
+        } else {
+            $res = $this->db_manager->get_user_by_login_p(
+                    $login_or_email, $data["password"]);
+        }
+        
+        if (DEBUG) {
+            echo "res: ". json_encode($res);
+        }
+        return $res;
+    }
+    
+    
     public function register($data) {
         $view_data["return"] = $data["return"];
+        $view_data["countries"] = $this->db_manager->get_countries();
         $this->view($view_data);
     }
     
@@ -71,11 +105,13 @@ class LoginController extends Controller{
             http_response_code(500);
         }
         
+        if (DEBUG) {
+            echo "DELIMITER11!";
+        }
         echo json_encode($res);
     }
 
     public function register_post() {
-        
         $regexes = array(
             "birth_date" => "/.*/",
             "login" => "/^[0-9a-zA-Z]{6,12}$/",
@@ -83,19 +119,12 @@ class LoginController extends Controller{
             "password" => "/^[A-Z][0-9a-zA-Z]{6,12}$/",
             "email" => '/^(([^<>()\[\]\\.,; => \s@"]+(\.[^<>()\[\]\\.,; => \s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/'
         );
-        
         $errors = array();
-
         $isvalid = true;
-
         foreach ($regexes as $field => $regex) {
             $val = $_POST[$field];
             $is_ok = preg_match($regex, $val);
-            
-            if (DEBUG) {
-                var_dump($is_ok);
-            }
-            
+
             if ($field === "email") {
                 $is_ok = filter_var($val, FILTER_VALIDATE_EMAIL) != FALSE;
             }
@@ -118,13 +147,8 @@ class LoginController extends Controller{
             
             
             //can got here only if client validation has been removed
-            if (DEBUG) {
-                echo "<pre>REJECTED ";
-                var_dump($_POST);
-                echo "***</pre>";
-            }
             return;
-            //header("Location: ".ROOT_URL."/login/register");
+            if (!DEBUG) header("Location: ".ROOT_URL."/login/register");
             
         } else {
             
@@ -142,48 +166,33 @@ class LoginController extends Controller{
             }
             
             $user->country_id = $this->db_manager->get_country_id($_POST["country"]);
-            
-            if (DEBUG) {
-                echo "<pre>Going to create: ";
-                var_dump(get_object_vars($user));
-                //var_dump($_POST);
-                echo "***</pre>";
-            }
-            
             $this->db_manager->create_user($user);
+            $this->db_manager->sign_in($user);
+            if (!DEBUG) header("Location: ".ROOT_URL."index/index");
         }
-    }
-    
-    private function signup_server_side_validation($data) {
-        $login_or_email = $data["login_or_email"];
-        $is_email = filter_var($is_email, FILTER_VALIDATE_EMAIL) != FALSE;
-        
-        if ($is_email) {
-            $res = $this->db_manager->get_user_by_email(
-                    $login_or_email, $data["password"]);
-        } else {
-            $res = $this->db_manager->get_user_by_login(
-                    $login_or_email, $data["password"]);
-        }
-        
-        $res_data = array();
-        
-        if ($res == 0) {
-            $res_data["wrong_auth"] = "Login(email) or password incorrect";
-        }
-        
-        return $res_data;
     }
     
     private function register_server_side_validation($data) {
         $errors = array();
         
-        if ($this->db_manager->get_user_by_email($data["email"]) !== FALSE) {
+        $user = $this->db_manager->get_user_by_email($data["email"]);
+        
+        if ($user !== NULL) {
             $errors["email"] = "Not unique";
         }
         
-        if ($this->db_manager->get_user_by_login($data["login"]) !== FALSE) {
+        if (strlen($data["email"]) < 6) {
+            $errors["email"] = "Too short";
+        }
+        
+        $user = $this->db_manager->get_user_by_login($data["login"]);
+
+        if ($user !== NULL) {
             $errors["login"] = "Not unique";
+        }
+        
+         if (strlen($data["login"]) < 6) {
+            $errors["login"] = "Too short";
         }
         
         if ($this->db_manager->get_country_id($data["country"]) == FALSE) {

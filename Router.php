@@ -17,16 +17,8 @@ class Router {
         if ($url == ""){
             $url = "index/index";
         }
-        
-        if (DEBUG) {
-            echo "url to route: $url.";
-        }
 
         $split_url = explode('/', $url);
-        
-        if (DEBUG) {
-            var_dump($split_url);
-        }
         
         $contr_type = ucfirst($split_url[0])."Controller";
         $act = $split_url[1];
@@ -38,10 +30,6 @@ class Router {
         
         require_once "Controllers/".$contr_type.".php";
         $contr = new $contr_type;
-        
-        if (DEBUG) {
-            echo "<br><br>Invoking $act on $contr_type<br><br>";
-        }
         $contr->$act($query_parsed);
     }
 }

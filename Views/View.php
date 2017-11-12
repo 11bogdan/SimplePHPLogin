@@ -14,12 +14,7 @@
 abstract class View {
     //put your code here
     public function html_view($data) {
-        echo "<br>Hey! I'am a view<br>";
-        if (DEBUG) {
-            echo "<pre>";
-            var_dump(debug_backtrace());
-            echo "</pre>";
-        }
+
     }
     
     protected function insert_header($data) {?>
@@ -34,11 +29,17 @@ abstract class View {
                 echo file_get_contents(ROOT_URL."/Scripts/$script.js");
                 echo "</script>";
             }
-            ?>
+            
+            foreach($data["styles"] as $style) { ?>
+            <style>
+                <?=file_get_contents(ROOT_URL."/Styles/$style.css");?>
+            </style>
+            <?php } ?>
             
         </head>
         <body>
             <h1><?= $data["name"]?></h1>
+           
     <?php
     }
     

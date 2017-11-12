@@ -19,12 +19,6 @@ class DbProvider {
     public function DbProvider($servername, $username, $password) {
         $this->conn = new mysqli($servername, $username, $password);
         
-        if (DEBUG) {
-            echo "<pre>conn in provider:";
-            var_dump($this->conn);
-            echo "</pre>";
-        }
-        
         if ($this->conn->connect_error) {
             die("Connection failed: " . $this->conn->connect_error);
         }

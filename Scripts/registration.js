@@ -1,4 +1,4 @@
-debug = true;
+debug = false;
 
 
 granted = false;
@@ -17,6 +17,7 @@ function onSubmit() {
 
     document.getElementById("please_wait").innerHTML = "Please, wait...";
 
+    if (debug) alert("ganted to go: "+granted);
     if (granted) {
         return true;
     }
@@ -32,9 +33,12 @@ function onSubmit() {
     
     var isvalid = true;
 
+
     //check passwords
     if (getField("password").value !== getField("password_repeat").value) {
         getErrField("password_repeat").innerHTML = "The passwords should be the same";
+        isvalid = false;
+        if (debug) alert("broken with passwords "+isvalid);
     }
     
     for (var field in regexes) {
@@ -47,7 +51,13 @@ function onSubmit() {
         var reg = new RegExp(regexes[field], "g");
         var isOk = reg.test(val) && val !== undefined;
         
- 
+        if (field == "birth_date") {
+            var dateParts = getField("birth_date").value.split('-');
+            var year = dateParts[2];
+            if (year > 2010 || year < 1900) {
+                isOk = false;
+            }
+        } 
         if (!isOk) {
             getErrField(field).innerHTML = " Field incorrect. Should match "+regexes[field];
         } else {
@@ -57,7 +67,7 @@ function onSubmit() {
         isvalid &= isOk;
     }
     
-    alert("Pre-ajax res: "+isvalid);
+    if (debug) alert("Pre-ajax res: "+isvalid);
     
     //do ajax post
     var xhttp = new XMLHttpRequest();
@@ -65,22 +75,25 @@ function onSubmit() {
     
     xhttp.onreadystatechange = function() {
         
-        alert("rd state:" + this.readyState);
         if (this.readyState === 4) {
-            alert("the status is "+this.status);
+            if (debug) alert("the status is "+this.status);
             document.getElementById("please_wait").innerHTML = "";
             
+            if (debug) alert("isvalid to assign: "+isvalid);
             if (this.status === 200) {
-                granted = true;
-                document.forms[0].submit();
+                if (isvalid) {
+                    document.forms[0].submit();
+                }
             } else {
-                alert("parsing "+ xhttp.responseText);
+                if (debug) document.getElementById("please_wait").innerHTML += ("parsing "+ xhttp.responseText);
                 isvalid = false;
-                var resp = JSON.parse(xhttp.responseText);
+                
+                var arr = xhttp.responseText.split("DELIMITER11!");
+                var resp = JSON.parse(arr[arr.length-1]);
 
-                alert("Err field count: "+resp.length);
+                //if (debug) alert("Err field count: "+resp.length);
                 for(var key in resp) {
-                    alert("Err field: "+key);
+                    //if (debug) alert("Err field: "+key);
                     getErrField(key).innerHTML = resp[key];
                 }
             }
@@ -103,7 +116,7 @@ function onSubmit() {
         getField("password_repeat").value = "";
     }
     
-    if (debug) alert("About to return "+isvalid);
+    if (debug) if (debug) alert("About to return "+isvalid);
     return false;
 }
 

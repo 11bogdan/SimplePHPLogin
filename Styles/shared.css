@@ -1,0 +1,14 @@
+input, select {
+    position: absolute;
+    left: 150px;
+}
+
+div {
+    margin: 15px;
+}
+
+.validation{
+    color: red;
+    position: absolute;
+    left: 350px;
+}

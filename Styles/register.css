@@ -1,0 +1,29 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 12.11.2017, 8:09:47
+    Author     : Богдан
+*/
+
+input, select {
+    position: absolute;
+    left: 150px;
+}
+
+input[type=checkbox] {
+    position: relative;
+    left: 0px;
+}
+
+div {
+    margin: 15px;
+}
+
+.validation{
+    color: red;
+    position: absolute;
+    left: 350px;
+}

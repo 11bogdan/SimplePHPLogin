@@ -25,10 +25,7 @@ abstract class Controller {
         $view_name = ucfirst($act_name)."View";
         
         require("Views/". get_class($this)."/$view_name.php");
-        
-        if (DEBUG) {
-            echo "The view of type $view_name created";
-        }
+
         $view = new $view_name();
         $view->html_view($data);
     }
@@ -36,10 +33,6 @@ abstract class Controller {
     protected function view2($data, $view_name) {
         
         require("Views/". get_class($this)."/$view_name.php");
-        
-        if (DEBUG) {
-            echo "The view of type $view_name created";
-        }
         
         $view = new $view_name();
         $view->html_view($data);

@@ -13,7 +13,16 @@
  */
 require(ROOT_URL."/Views/View.php");
 class IndexView extends View {
-    //put your code here
-    
-    
+    public function html_view($data) {
+        $data = array();
+        $data["name"] = "Personal page";
+        $this->insert_header($data); ?>
+         <div id="user_panel">
+            <?php foreach (get_object_vars($_SESSION["user"]) as $key => $val) {
+                if ($val != "User") echo "$key: $val<br>";
+            } ?>
+            <a href="<?= SITE_URL."login/signout" ?>">Выход</a>
+        </div>
+        <?php $this->insert_footer($data);
+    }
 }

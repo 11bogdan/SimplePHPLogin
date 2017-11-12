@@ -24,6 +24,24 @@ class DbManager {
         return new DbManager;
     }
     
+    public function is_authorized() {
+        session_start();
+        $query = sprintf('SELECT * from `default`.`authors` WHERE `id` = "%s"', session_id());
+        $res = DbManager::$db_connect->query($query);
+        
+        if (DEBUG) {
+            echo "query is auth: $query<br>";
+            echo "res nrows: $res->num_rows";
+        }
+        
+        if ($res->num_rows > 0) {
+            return TRUE;
+
+        } else {
+            return FALSE;
+        }
+    }
+    
     public function create_user($user) {
         
         try {
@@ -55,7 +73,20 @@ class DbManager {
     }
     
     public function get_countries() {
+        $query = "SELECT `name` FROM `default`.`countries`";
+        $res = DbManager::$db_connect->query($query);
         
+        if (DEBUG) {
+            echo "res of country query:".json_encode($res);
+        }
+        
+        $countries = array();
+        
+        while($row = DbProvider::fetch_assoc($res)){
+            $countries[] = $row["name"];
+        }
+        
+        return $countries;
     }
     
     public function get_country_id($country) {
@@ -68,37 +99,163 @@ class DbManager {
         }
         
         $country_id = DbProvider::fetch_assoc($res)["id"];
-        
-        if (DEBUG) {
-            echo "<pre>country id res:";
-            echo $query."<br>";
-            var_dump($country_id);
-            echo "Err:".DbManager::$db_connect->connect_error();
-            echo "</pre>";
-        }
         return $country_id;
     }
     
     public function get_user_by_login($login) {
         
+        if (DEBUG) {
+            echo "login usual invoked";
+        }
+                
+        $query = sprintf('SELECT * FROM `default`.users WHERE login = "%s"', 
+                DbManager::$db_connect->escape_string($login));
+        
+        $res = DbManager::$db_connect->query($query);
+        $user = DbProvider::fetch_assoc($res);
+        
+        $obj_user = new User;
+        if ($user != NULL) {
+            foreach ($user as $key => $prop) {
+                $obj_user->$key = $prop;
+            }
+            
+            return $obj_user;
+        } else {
+            return null;
+        }
     }
     
     public function get_user_by_email($email) {
         
+        $query = sprintf('SELECT * FROM `default`.users WHERE email = "%s"', 
+        DbManager::$db_connect->escape_string($email));
+        
+        $res = DbManager::$db_connect->query($query);
+        $user = DbProvider::fetch_assoc($res);
+        
+        $obj_user = new User;
+        if ($user != NULL) {
+            foreach ($user as $key => $prop) {
+                $obj_user->$key = $prop;
+            }
+            
+            return $obj_user;
+        } else {
+            return null;
+        }
     }
+    
+    public function get_user_by_login_p($login, $password) {
+        $user = $this->get_user_by_login($login);
+        
+        if ($user) {            
+            if (password_verify($password, $user->password_hash) == FALSE) {
+                return null;
+            }
+        }
+        return $user;
+    }
+
+    public function get_user_by_email_p($email, $password) {
+        $user = $this->get_user_by_email($email);
+
+        if ($user) {            
+            if (password_verify($password, $user->password_hash) == FALSE) {
+                return null;
+            }
+        }
+        return $user;
+    }
+    
+    
+    /*public function __call($method, $arguments) {
+        if (DEBUG) {
+            echo "nargs: ".count($arguments).".";
+        }
+        
+        if($method == 'get_user_by_email') {
+            if(count($arguments) == 1) {
+               return call_user_func_array(array($this,'get_user_by_email'), $arguments);
+            }
+            else if(count($arguments) == 2) {
+               return call_user_func_array(array($this,'get_user_by_email_p'), $arguments);
+            }
+        }
+
+        if($method == 'get_user_by_login') {
+           if(count($arguments) == 1) {
+              return call_user_func_array(array($this,'get_user_by_login'), $arguments);
+           }
+           else if(count($arguments) == 2) {
+              return call_user_func_array(array($this,'get_user_by_login_p'), $arguments);
+           }
+       }
+   } */
+   
+    public function sign_in($user) {
+        session_start();
+        $_SESSION["user"] = $user;
+        
+        if (DEBUG) {
+            echo "sign in reached";
+        }
+        
+        $query = sprintf('DELETE FROM `default`.`authors` WHERE `user_login` = "%s"',
+                $user->login);
+       
+        $res = DbManager::$db_connect->query($query);
+        
+        if (DEBUG) {
+            echo "Done ($query)";
+        }
+        
+        $query = sprintf('INSERT INTO `default`.`authors`
+            (`id`,
+            `user_login`)
+            VALUES
+            ("%s","%s");', 
+            DbManager::$db_connect->escape_string(session_id()),
+            DbManager::$db_connect->escape_string($user->login));
+       
+        $res = DbManager::$db_connect->query($query);
+        
+        if (DEBUG) {
+            echo "Repeating query: $query<br>".json_encode($res);
+        }
+        
+        if (!$res) {
+            return FALSE;
+        }
+        
+        $_SESSION["test"] = "data1";
+        return TRUE;
+    }
+    
+    public function sign_out() {
+        session_start();
+        $query = sprintf('DELETE FROM `default`.`authors`
+            WHERE `id` = "%s";', 
+            (session_id()));
+        
+        $res = DbManager::$db_connect->query($query);
+        
+        if (DEBUG) {
+            echo "(test: ".$_SESSION["test"].")Signedout with $query";
+        }
+        
+        session_destroy();
+        return $res;
+    }
+    
     
     private static function create_connection() {
         $server = "localhost";
         $user = "root";
-        $password = "";
+        $password = "123";
         
         $conn = new DbProvider($server, $user, $password);
-        
-        if (DEBUG){
-            echo "<pre>";
-            var_dump($conn);
-            echo "</pre>";
-        }
+       
         return $conn;
     }
 }

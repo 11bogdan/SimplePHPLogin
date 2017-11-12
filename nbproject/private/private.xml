@@ -3,12 +3,21 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/E:/USR/www/SimplePHPLogin/index.php111</file>
-            <file>file:/E:/USR/www/SimplePHPLogin/Scripts/signup.js</file>
-            <file>file:/E:/USR/www/SimplePHPLogin/Router.php111</file>
-            <file>file:/E:/USR/www/SimplePHPLogin/Controllers/Controller.php</file>
-            <file>file:/E:/USR/www/SimplePHPLogin/infrastructure.php111</file>
+            <file>file:/E:/USR/www/SimplePHPLogin/Models/DbProvider.php</file>
+            <file>file:/E:/USR/www/SimplePHPLogin/Views/LoginController/SignupView.php</file>
+            <file>file:/E:/USR/www/SimplePHPLogin/Router.php</file>
+            <file>file:/E:/USR/www/SimplePHPLogin/Views/IndexController/IndexView.php</file>
+            <file>file:/E:/USR/www/SimplePHPLogin/Views/LoginController/SignoutView.php</file>
+            <file>file:/E:/USR/www/SimplePHPLogin/Controllers/LoginController.php</file>
+            <file>file:/E:/USR/www/SimplePHPLogin/Views/View.php</file>
+            <file>file:/E:/USR/www/SimplePHPLogin/infrastructure.php</file>
             <file>file:/E:/USR/www/SimplePHPLogin/Scripts/registration.js</file>
+            <file>file:/E:/USR/www/SimplePHPLogin/Controllers/IndexController.php</file>
+            <file>file:/E:/USR/www/SimplePHPLogin/Models/User.php</file>
+            <file>file:/E:/USR/www/SimplePHPLogin/Scripts/signup.js</file>
+            <file>file:/E:/USR/www/SimplePHPLogin/Models/DbManager.php</file>
+            <file>file:/E:/USR/www/SimplePHPLogin/Views/LoginController/RegisterView.php</file>
+            <file>file:/E:/USR/www/SimplePHPLogin/Controllers/Controller.php</file>
             <file>file:/E:/USR/www/SimplePHPLogin/.htaccess</file>
         </group>
     </open-files>

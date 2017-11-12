@@ -18,12 +18,14 @@ class SignupView extends View {
     public function html_view($data) {
         $data["title"] = "Signing Up";
         $data["name"] = "Sign Up page";
+        $data["styles"] = ["shared"];
         $this->insert_header($data);?>
 
         <form action="signup_post" method="post">
             <div>
                 <label for="login_or_email">Login or email</label>
                 <input type="text" name="login_or_email">
+                <label id="incorrect" class="validation"><?=$data["incorrect"]?></label>
             </div>
             <div>
                 <label for="password">Password</label>

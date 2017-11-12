@@ -19,6 +19,7 @@ class RegisterView extends View {
         $data["title"] = "Registration Page";
         $data["name"] = "Registration form";
         $data["scripts"] = ["registration"];
+        $data["styles"] = ["shared", "register"];
         
         $this->insert_header($data);?>
         <form action="register_post" method="post" onsubmit="return onSubmit()">
@@ -54,7 +55,11 @@ class RegisterView extends View {
             </div>
              <div>
                 <label for="country">Country</label>
-                <input type="text" name="country">
+                <select name="country">
+                    <?php foreach ($data["countries"] as $name) { ?>
+                    <option value="<?=$name?>"><?=$name?></option>
+                    <?php } ?>
+                </select>
                 <label id="country" class="validation"></label>
             </div>
              <div>
