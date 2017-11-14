@@ -62,7 +62,7 @@ function onSubmit() {
             }
         } 
         if (!isOk) {
-            getErrField(field).innerHTML = " Field incorrect. Should match "+regexes[field];
+            getErrField(field).innerHTML = field == "birth_date"?"The year should be between 1900 and 2010!":" Field incorrect. Should match "+regexes[field];
         } else {
             getErrField(field).innerHTML = "";
         }
