@@ -10,7 +10,7 @@ const DEBUG = FALSE;
 const ROOT_DIR = "SimplePHPLogin";
 const ROOT_URL = __DIR__;
 const SITE_URL = "http://localhost/SimplePHPLogin/";
-error_reporting(0);
+error_reporting(DEBUG == TRUE ? -1 : 0);
 
 
 function test_input($data) {

@@ -15,6 +15,8 @@ require("DbProvider.php");
 class DbManager {
     
     private static $db_connect;
+    private static $SCHEME_DEFAULT = "default";
+    
     
     public static function get_instance() {
         if (!isset(DbManager::$db_connect)) {
@@ -26,7 +28,7 @@ class DbManager {
     
     public function is_authorized() {
         session_start();
-        $query = sprintf('SELECT * from `default`.`authors` WHERE `id` = "%s"', session_id());
+        $query = sprintf('SELECT * from `'.DbManager::$SCHEME_DEFAULT.'`.`authors` WHERE `id` = "%s"', session_id());
         $res = DbManager::$db_connect->query($query);
         
         if (DEBUG) {
@@ -45,7 +47,7 @@ class DbManager {
     public function create_user($user) {
         
         try {
-            $query = sprintf('INSERT INTO `default`.`users`(`login`, `password_hash`, `birth_date`, `timestamp`, `country_id`, `email`, `real_name`) 
+            $query = sprintf('INSERT INTO `'.DbManager::$SCHEME_DEFAULT.'`.`users`(`login`, `password_hash`, `birth_date`, `timestamp`, `country_id`, `email`, `real_name`) 
                 VALUES ("%s", "%s", "%s", current_timestamp(), "%s", "%s", "%s");
                 ', 
                 DbManager::$db_connect->escape_string($user->login), 
@@ -73,10 +75,11 @@ class DbManager {
     }
     
     public function get_countries() {
-        $query = "SELECT `name` FROM `default`.`countries`";
+        $query = 'SELECT `name` FROM `'.DbManager::$SCHEME_DEFAULT.'`.`countries`';
         $res = DbManager::$db_connect->query($query);
         
         if (DEBUG) {
+            echo "query:".$query;
             echo "res of country query:".json_encode($res);
         }
         
@@ -90,7 +93,7 @@ class DbManager {
     }
     
     public function get_country_id($country) {
-        $query = sprintf('SELECT id FROM `default`.countries WHERE name = "%s"', 
+        $query = sprintf('SELECT id FROM `'.DbManager::$SCHEME_DEFAULT.'`.countries WHERE name = "%s"', 
                 DbManager::$db_connect->escape_string($country));
         $res = DbManager::$db_connect->query($query);
         
@@ -108,7 +111,7 @@ class DbManager {
             echo "login usual invoked";
         }
                 
-        $query = sprintf('SELECT * FROM `default`.users WHERE login = "%s"', 
+        $query = sprintf('SELECT * FROM `'.DbManager::$SCHEME_DEFAULT.'`.users WHERE login = "%s"', 
                 DbManager::$db_connect->escape_string($login));
         
         $res = DbManager::$db_connect->query($query);
@@ -128,7 +131,7 @@ class DbManager {
     
     public function get_user_by_email($email) {
         
-        $query = sprintf('SELECT * FROM `default`.users WHERE email = "%s"', 
+        $query = sprintf('SELECT * FROM `'.DbManager::$SCHEME_DEFAULT.'`.users WHERE email = "%s"', 
         DbManager::$db_connect->escape_string($email));
         
         $res = DbManager::$db_connect->query($query);
@@ -201,7 +204,7 @@ class DbManager {
             echo "sign in reached";
         }
         
-        $query = sprintf('DELETE FROM `default`.`authors` WHERE `user_login` = "%s"',
+        $query = sprintf('DELETE FROM `'.DbManager::$SCHEME_DEFAULT.'`.`authors` WHERE `user_login` = "%s"',
                 $user->login);
        
         $res = DbManager::$db_connect->query($query);
@@ -210,7 +213,7 @@ class DbManager {
             echo "Done ($query)";
         }
         
-        $query = sprintf('INSERT INTO `default`.`authors`
+        $query = sprintf('INSERT INTO `'.DbManager::$SCHEME_DEFAULT.'`.`authors`
             (`id`,
             `user_login`)
             VALUES
@@ -234,7 +237,7 @@ class DbManager {
     
     public function sign_out() {
         session_start();
-        $query = sprintf('DELETE FROM `default`.`authors`
+        $query = sprintf('DELETE FROM `'.DbManager::$SCHEME_DEFAULT.'`.`authors`
             WHERE `id` = "%s";', 
             (session_id()));
         

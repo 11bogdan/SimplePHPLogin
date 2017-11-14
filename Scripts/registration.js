@@ -53,9 +53,12 @@ function onSubmit() {
         
         if (field == "birth_date") {
             var dateParts = getField("birth_date").value.split('-');
-            var year = dateParts[2];
-            if (year > 2010 || year < 1900) {
+            var year = dateParts[0];
+            if (year > 2010 || year < 1900 || getField("birth_date").value === undefined) {
+                if (debug) alert("Firing wrong date with "+year);
                 isOk = false;
+            } else {
+                isOk = true;
             }
         } 
         if (!isOk) {
